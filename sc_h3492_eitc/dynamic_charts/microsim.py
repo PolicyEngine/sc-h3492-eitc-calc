@@ -6,9 +6,6 @@ for South Carolina residents only.
 
 import numpy as np
 from policyengine_us import Microsimulation
-from policyengine_us.variables.household.demographic.geographic.state_code import (
-    StateCode,
-)
 
 from ..reform import sc_h3492_reform
 
@@ -45,13 +42,11 @@ def calculate_decile_impacts(year: int = 2026) -> dict:
     baseline_income_hh = baseline.calculate("household_net_income", period=year).values
     reform_income_hh = reform.calculate("household_net_income", period=year).values
 
-    # Get state codes at household level - state_code is a household variable
-    state_codes = baseline.calculate("state_code", period=year).values
+    # Get state codes at household level using state_code_str (returns string like "SC")
+    state_codes_str = baseline.calculate("state_code_str", period=year).values
 
-    # Filter to South Carolina households (StateCode.SC enum value)
-    # The state_code returns encoded enum values
-    sc_code = StateCode.SC.index
-    sc_mask = state_codes == sc_code
+    # Filter to South Carolina households
+    sc_mask = state_codes_str == "SC"
 
     # Apply SC filter
     household_income_decile_hh = household_income_decile_hh[sc_mask]
@@ -134,27 +129,39 @@ def calculate_decile_impacts(year: int = 2026) -> dict:
 
     # Calculate overall population outcomes
     total_weight = outcome_weights.sum()
-    all_outcomes = {
-        "gain_more_than_5pct": round(
-            (outcome_weights[gain_more_5_hh].sum() / total_weight) * 100, 1
-        ),
-        "gain_less_than_5pct": round(
-            (outcome_weights[gain_less_5_hh].sum() / total_weight) * 100, 1
-        ),
-        "no_change": round((outcome_weights[no_change_hh].sum() / total_weight) * 100, 1),
-        "loss_less_than_5pct": round(
-            (outcome_weights[loss_less_5_hh].sum() / total_weight) * 100, 1
-        ),
-        "loss_more_than_5pct": round(
-            (outcome_weights[loss_more_5_hh].sum() / total_weight) * 100, 1
-        ),
-    }
+    if total_weight > 0:
+        all_outcomes = {
+            "gain_more_than_5pct": round(
+                (outcome_weights[gain_more_5_hh].sum() / total_weight) * 100, 1
+            ),
+            "gain_less_than_5pct": round(
+                (outcome_weights[gain_less_5_hh].sum() / total_weight) * 100, 1
+            ),
+            "no_change": round((outcome_weights[no_change_hh].sum() / total_weight) * 100, 1),
+            "loss_less_than_5pct": round(
+                (outcome_weights[loss_less_5_hh].sum() / total_weight) * 100, 1
+            ),
+            "loss_more_than_5pct": round(
+                (outcome_weights[loss_more_5_hh].sum() / total_weight) * 100, 1
+            ),
+        }
+    else:
+        all_outcomes = {
+            "gain_more_than_5pct": 0,
+            "gain_less_than_5pct": 0,
+            "no_change": 100,
+            "loss_less_than_5pct": 0,
+            "loss_more_than_5pct": 0,
+        }
 
     # Debug info
-    print(f"  Max pct_change: {pct_change_hh.max():.2f}%")
-    print(f"  Households with >5% gain: {gain_more_5_hh.sum()}")
-    print(f"  Overall gain >5%: {all_outcomes['gain_more_than_5pct']}%")
-    print(f"  Decile 1 gain >5%: {decile_outcomes['gain_more_than_5pct'][0]}%")
+    if len(pct_change_hh) > 0:
+        print(f"  Max pct_change: {pct_change_hh.max():.2f}%")
+        print(f"  Households with >5% gain: {gain_more_5_hh.sum()}")
+        print(f"  Overall gain >5%: {all_outcomes['gain_more_than_5pct']}%")
+        print(f"  Decile 1 gain >5%: {decile_outcomes['gain_more_than_5pct'][0]}%")
+    else:
+        print("  WARNING: No SC households found in microsimulation data!")
 
     return {
         "decile_outcomes": decile_outcomes,
