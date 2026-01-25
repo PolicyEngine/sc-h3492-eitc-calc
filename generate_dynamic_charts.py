@@ -75,8 +75,9 @@ def main():
     print()
 
     # Step 1: Generate net income change chart (household simulation)
+    # Use step=5000 for faster CI runs (41 data points instead of 201)
     print("Step 1: Generating net income change chart...")
-    fig1 = create_dynamic_net_income_change_chart(num_children=1, max_income=200000, step=1000)
+    fig1 = create_dynamic_net_income_change_chart(num_children=1, max_income=200000, step=5000)
     generate_chart_html(
         fig1,
         "Net Income Change - SC H.3492 Partially Refundable EITC",
