@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sc-h3492-eitc-calc"
+version = "0.1.0"
+description = "Analysis of South Carolina H.3492 Partially Refundable EITC"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "PolicyEngine", email = "hello@policyengine.org"}
+]
+dependencies = [
+    "pandas>=2.0.0",
+    "plotly>=5.18.0",
+    "policyengine-us>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["sc_h3492_eitc*"]
