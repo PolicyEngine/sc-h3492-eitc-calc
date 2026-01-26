@@ -82,13 +82,13 @@ def calculate_decile_impacts(year: int = 2026) -> dict:
             avg_impact_by_decile.append(0)
 
     # =========================================================================
-    # OUTCOME PERCENTAGES (person-weighted, matching app-v2 methodology)
+    # OUTCOME PERCENTAGES (person-weighted, matching app-v2 methodology exactly)
     # =========================================================================
-    # Cap baseline income at $1 minimum to prevent division issues (matches app-v2)
+    # Match app-v2 income_change calculation exactly (from compare.py lines 324-331)
+    absolute_change = income_change_hh  # reform - baseline
     capped_baseline_income = np.maximum(baseline_income_hh, 1)
-
-    # Calculate percentage change using capped baseline (as decimal, not percentage)
-    pct_change_hh = income_change_hh / capped_baseline_income
+    capped_reform_income = np.maximum(reform_income_hh, 1) + absolute_change
+    pct_change_hh = (capped_reform_income - capped_baseline_income) / capped_baseline_income
 
     # Categorize households by outcome using app-v2 thresholds:
     # - Gain >5%: pct_change > 0.05
