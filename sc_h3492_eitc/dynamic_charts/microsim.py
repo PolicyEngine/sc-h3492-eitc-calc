@@ -29,9 +29,10 @@ def calculate_decile_impacts(year: int = 2026) -> dict:
     """
     print(f"Running microsimulation for South Carolina, {year}...")
 
-    # Run baseline and reform simulations
-    baseline = Microsimulation()
-    reform = Microsimulation(reform=sc_h3492_reform)
+    # Run baseline and reform simulations using SC-specific dataset
+    dataset = "hf://policyengine/policyengine-us-data/states/SC.h5"
+    baseline = Microsimulation(dataset=dataset)
+    reform = Microsimulation(dataset=dataset, reform=sc_h3492_reform)
 
     # =========================================================================
     # HOUSEHOLD-LEVEL DATA
