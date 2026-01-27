@@ -24,8 +24,8 @@ def calculate_net_income_by_earnings(
     """
     Calculate baseline and reform net income across employment income range.
 
-    Uses PolicyEngine axes to compute all income points in a single simulation
-    pair (one baseline, one reform) rather than per-point.
+    Uses actual PolicyEngine-US simulations to compute net income under
+    baseline and SC H.3492 reform scenarios.
 
     Args:
         state: State code (default "SC" for South Carolina)
@@ -38,113 +38,30 @@ def calculate_net_income_by_earnings(
     Returns:
         Tuple of (employment_income_values, baseline_net_incomes, reform_net_incomes)
     """
-    count = ((max_income - min_income) // step) + 1
     employment_income_values = list(range(min_income, max_income + 1, step))
+    baseline_net_incomes = []
+    reform_net_incomes = []
 
-    # Build situation with axes to vary employment income across the range
-    situation = _build_household_situation_with_axes(
-        state=state,
-        num_children=num_children,
-        min_income=min_income,
-        max_income=max_income,
-        count=count,
-        year=year,
-    )
+    for income in employment_income_values:
+        # Build household situation
+        situation = _build_household_situation(
+            state=state,
+            num_children=num_children,
+            employment_income=income,
+            year=year,
+        )
 
-    # Run baseline simulation (single sim for all income points)
-    baseline_sim = Simulation(situation=situation)
-    baseline_net = baseline_sim.calculate("household_net_income", year)
-    baseline_net_incomes = [float(v) for v in baseline_net]
+        # Run baseline simulation
+        baseline_sim = Simulation(situation=situation)
+        baseline_net = baseline_sim.calculate("household_net_income", year)
+        baseline_net_incomes.append(float(baseline_net[0]))
 
-    # Run reform simulation (single sim for all income points)
-    reform_sim = Simulation(situation=situation, reform=sc_h3492_reform)
-    reform_net = reform_sim.calculate("household_net_income", year)
-    reform_net_incomes = [float(v) for v in reform_net]
+        # Run reform simulation
+        reform_sim = Simulation(situation=situation, reform=sc_h3492_reform)
+        reform_net = reform_sim.calculate("household_net_income", year)
+        reform_net_incomes.append(float(reform_net[0]))
 
     return employment_income_values, baseline_net_incomes, reform_net_incomes
-
-
-def _build_household_situation_with_axes(
-    state: str,
-    num_children: int,
-    min_income: int,
-    max_income: int,
-    count: int,
-    year: int,
-) -> dict:
-    """
-    Build a PolicyEngine situation with axes to vary employment income.
-
-    Uses a single simulation with axes instead of creating separate
-    simulations per income point.
-
-    Args:
-        state: State code (e.g., "SC" for South Carolina)
-        num_children: Number of children
-        min_income: Minimum employment income
-        max_income: Maximum employment income
-        count: Number of data points
-        year: Tax year
-
-    Returns:
-        Situation dictionary with axes for PolicyEngine Simulation
-    """
-    state_fips = STATE_FIPS.get(state, 45)
-
-    people = {
-        "adult": {
-            "age": {year: 35},
-            "employment_income": {year: 0},
-        }
-    }
-
-    members = ["adult"]
-    for i in range(num_children):
-        child_name = f"child_{i + 1}"
-        people[child_name] = {
-            "age": {year: 5 + i},
-        }
-        members.append(child_name)
-
-    return {
-        "people": people,
-        "tax_units": {
-            "tax_unit": {
-                "members": members,
-            }
-        },
-        "spm_units": {
-            "spm_unit": {
-                "members": members,
-            }
-        },
-        "households": {
-            "household": {
-                "members": members,
-                "state_fips": {year: state_fips},
-            }
-        },
-        "families": {
-            "family": {
-                "members": members,
-            }
-        },
-        "marital_units": {
-            "marital_unit": {
-                "members": ["adult"],
-            }
-        },
-        "axes": [
-            [
-                {
-                    "name": "employment_income",
-                    "min": min_income,
-                    "max": max_income,
-                    "count": count,
-                }
-            ]
-        ],
-    }
 
 
 def _build_household_situation(
