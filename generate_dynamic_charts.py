@@ -11,6 +11,7 @@ from sc_h3492_eitc.dynamic_charts import (
     create_dynamic_winners_by_decile_chart,
     create_dynamic_avg_benefit_by_decile_chart,
     create_dynamic_net_income_change_chart,
+    create_dynamic_eitc_benefit_chart,
 )
 
 # Output directories
@@ -84,6 +85,16 @@ def main():
     )
     print()
 
+    # Step 1b: Generate EITC benefit comparison chart
+    print("Step 1b: Generating EITC benefit comparison chart...")
+    fig1b = create_dynamic_eitc_benefit_chart(num_children=1, max_income=200000, step=1000)
+    generate_chart_html(
+        fig1b,
+        "EITC Benefits Comparison - SC Current Law vs H.3492",
+        "eitc-benefit-comparison.html",
+    )
+    print()
+
     # Step 2: Run microsimulation to get decile data
     print("Step 2: Running microsimulation for decile charts...")
     microsim_data = calculate_decile_impacts()
@@ -119,6 +130,7 @@ def main():
     print()
     print("Chart URLs after deployment:")
     print("  https://policyengine.github.io/sc-h3492-eitc-calc/net-income-change.html")
+    print("  https://policyengine.github.io/sc-h3492-eitc-calc/eitc-benefit-comparison.html")
     print("  https://policyengine.github.io/sc-h3492-eitc-calc/winners-by-decile.html")
     print("  https://policyengine.github.io/sc-h3492-eitc-calc/avg-benefit-by-decile.html")
 

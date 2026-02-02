@@ -8,7 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-from ..household import calculate_net_income_by_earnings
+from ..household import calculate_net_income_by_earnings, calculate_eitc_benefits_by_earnings
 
 # PolicyEngine app-v2 color palette
 BLACK = "#000000"
@@ -348,6 +348,108 @@ def create_dynamic_net_income_change_chart(
         showlegend=False,
         font_color=BLACK,
         margin={"l": 60, "r": 60, "b": 80, "t": 80, "pad": 4},
+        images=[
+            {
+                **WATERMARK_CONFIG,
+                "x": 1.05,
+                "y": -0.18,
+            }
+        ],
+    )
+
+    return fig
+
+
+def create_dynamic_eitc_benefit_chart(
+    num_children: int = 1,
+    max_income: int = 200000,
+    step: int = 1000,
+) -> go.Figure:
+    """
+    Create EITC benefit comparison chart showing current law and H.3492 benefits.
+
+    Shows the total EITC benefit under current law and under H.3492 as two
+    separate line graphs.
+
+    Args:
+        num_children: Number of children in household
+        max_income: Maximum employment income to show
+        step: Income step size
+
+    Returns:
+        Plotly figure object
+    """
+    print(f"Calculating EITC benefits for SC household with {num_children} child(ren)...")
+
+    # Get actual PolicyEngine calculations
+    employment_incomes, current_law_benefits, h3492_benefits = calculate_eitc_benefits_by_earnings(
+        state="SC",
+        num_children=num_children,
+        min_income=0,
+        max_income=max_income,
+        step=step,
+    )
+
+    fig = go.Figure()
+
+    # Add current law EITC benefit line
+    fig.add_trace(
+        go.Scatter(
+            x=employment_incomes,
+            y=current_law_benefits,
+            name="Current law",
+            mode="lines",
+            line=dict(color=PRIMARY_500, width=3),
+            hovertemplate=(
+                "Employment income: $%{x:,}<br>"
+                "Current law benefit: $%{y:,.2f}<extra></extra>"
+            ),
+        )
+    )
+
+    # Add H.3492 EITC benefit line
+    fig.add_trace(
+        go.Scatter(
+            x=employment_incomes,
+            y=h3492_benefits,
+            name="H.3492",
+            mode="lines",
+            line=dict(color=PRIMARY_700, width=3),
+            hovertemplate=(
+                "Employment income: $%{x:,}<br>"
+                "H.3492 benefit: $%{y:,.2f}<extra></extra>"
+            ),
+        )
+    )
+
+    fig.update_layout(
+        title=f"SC EITC benefits by policy (single parent, {num_children} child{'ren' if num_children > 1 else ''})",
+        font=dict(family="Roboto Serif", color=BLACK),
+        xaxis=dict(
+            title=dict(text="Employment income"),
+            tickformat=",",
+            tickprefix="$",
+            fixedrange=True,
+        ),
+        yaxis=dict(
+            title=dict(text="Total SC EITC"),
+            tickformat=",",
+            tickprefix="$",
+            fixedrange=True,
+        ),
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="center",
+            x=0.5,
+            itemwidth=30,
+            entrywidth=95,
+            entrywidthmode="pixels",
+        ),
+        font_color=BLACK,
+        margin={"l": 60, "r": 60, "b": 80, "t": 100, "pad": 4},
         images=[
             {
                 **WATERMARK_CONFIG,

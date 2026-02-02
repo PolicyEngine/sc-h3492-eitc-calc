@@ -9,6 +9,7 @@ from .charts import (
     create_dynamic_winners_by_decile_chart,
     create_dynamic_avg_benefit_by_decile_chart,
     create_dynamic_net_income_change_chart,
+    create_dynamic_eitc_benefit_chart,
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "create_dynamic_winners_by_decile_chart",
     "create_dynamic_avg_benefit_by_decile_chart",
     "create_dynamic_net_income_change_chart",
+    "create_dynamic_eitc_benefit_chart",
 ]

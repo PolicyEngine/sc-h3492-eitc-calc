@@ -30,6 +30,8 @@ def calculate_decile_impacts(year: int = 2026) -> dict:
     print(f"Running microsimulation for South Carolina, {year}...")
 
     # Run baseline and reform simulations using SC-specific dataset
+    # Baseline: Current law EITC (125% nonrefundable) - policyengine-us default
+    # Reform: H.3492 (125% + 25% refundable)
     dataset = "hf://policyengine/policyengine-us-data/states/SC.h5"
     baseline = Microsimulation(dataset=dataset)
     reform = Microsimulation(dataset=dataset, reform=sc_h3492_reform)
