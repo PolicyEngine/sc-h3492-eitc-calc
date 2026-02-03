@@ -113,7 +113,7 @@ def create_dynamic_winners_by_decile_chart(microsim_data: dict) -> go.Figure:
     fig.update_layout(
         barmode="stack",
         title=dict(
-            text="Winners of SC H.3492 partially refundable EITC by income decile",
+            text="<b>Figure 2: Winners of SC H.3492 partially refundable EITC by income decile</b>",
             x=0,
         ),
         font=dict(family="Roboto Serif"),
@@ -245,7 +245,7 @@ def create_dynamic_avg_benefit_by_decile_chart(microsim_data: dict) -> go.Figure
             y="Average impact",
             text=dollar_text,
             color_discrete_sequence=[PRIMARY_500],
-            title="Average benefit of SC H.3492 partially refundable EITC by income decile",
+            title="<b>Figure 3: Average benefit of SC H.3492 partially refundable EITC by income decile</b>",
         )
         .update_layout(
             font=dict(family="Roboto Serif"),
@@ -392,6 +392,18 @@ def create_dynamic_eitc_benefit_chart(
 
     fig = go.Figure()
 
+    # Add H.3492 EITC benefit line (first so it appears on top in hover)
+    fig.add_trace(
+        go.Scatter(
+            x=employment_incomes,
+            y=h3492_benefits,
+            name="H.3492",
+            mode="lines",
+            line=dict(color=PRIMARY_700, width=3),
+            hovertemplate="$%{y:,.0f}",
+        )
+    )
+
     # Add current law EITC benefit line
     fig.add_trace(
         go.Scatter(
@@ -400,30 +412,12 @@ def create_dynamic_eitc_benefit_chart(
             name="Current law",
             mode="lines",
             line=dict(color=PRIMARY_500, width=3),
-            hovertemplate=(
-                "Employment income: $%{x:,}<br>"
-                "Current law benefit: $%{y:,.2f}<extra></extra>"
-            ),
-        )
-    )
-
-    # Add H.3492 EITC benefit line
-    fig.add_trace(
-        go.Scatter(
-            x=employment_incomes,
-            y=h3492_benefits,
-            name="H.3492",
-            mode="lines",
-            line=dict(color=PRIMARY_700, width=3),
-            hovertemplate=(
-                "Employment income: $%{x:,}<br>"
-                "H.3492 benefit: $%{y:,.2f}<extra></extra>"
-            ),
+            hovertemplate="$%{y:,.0f}",
         )
     )
 
     fig.update_layout(
-        title=f"SC EITC benefits by policy (single parent, {num_children} child{'ren' if num_children > 1 else ''})",
+        title=f"<b>Figure 1: SC EITC benefits by policy (single parent, {num_children} child{'ren' if num_children > 1 else ''})</b>",
         font=dict(family="Roboto Serif", color=BLACK),
         xaxis=dict(
             title=dict(text="Employment income"),
@@ -437,6 +431,7 @@ def create_dynamic_eitc_benefit_chart(
             tickprefix="$",
             fixedrange=True,
         ),
+        hovermode="x unified",
         showlegend=True,
         legend=dict(
             orientation="h",
