@@ -76,9 +76,8 @@ def calculate_decile_impacts(year: int = 2026) -> dict:
         decile_weight_hh = household_weights_hh[in_decile_hh].sum()
         if decile_weight_hh > 0:
             avg_impact = (
-                (income_change_hh[in_decile_hh] * household_weights_hh[in_decile_hh]).sum()
-                / decile_weight_hh
-            )
+                income_change_hh[in_decile_hh] * household_weights_hh[in_decile_hh]
+            ).sum() / decile_weight_hh
             avg_impact_by_decile.append(round(avg_impact, 0))
         else:
             avg_impact_by_decile.append(0)
@@ -90,7 +89,9 @@ def calculate_decile_impacts(year: int = 2026) -> dict:
     absolute_change = income_change_hh  # reform - baseline
     capped_baseline_income = np.maximum(baseline_income_hh, 1)
     capped_reform_income = np.maximum(reform_income_hh, 1) + absolute_change
-    pct_change_hh = (capped_reform_income - capped_baseline_income) / capped_baseline_income
+    pct_change_hh = (
+        capped_reform_income - capped_baseline_income
+    ) / capped_baseline_income
 
     # Categorize households by outcome using app-v2 thresholds:
     # - Gain >5%: pct_change > 0.05
@@ -123,19 +124,39 @@ def calculate_decile_impacts(year: int = 2026) -> dict:
 
         if decile_people > 0:
             decile_outcomes["gain_more_than_5pct"].append(
-                round((person_weights[in_decile & gain_more_5_hh].sum() / decile_people) * 100, 1)
+                round(
+                    (person_weights[in_decile & gain_more_5_hh].sum() / decile_people)
+                    * 100,
+                    1,
+                )
             )
             decile_outcomes["gain_less_than_5pct"].append(
-                round((person_weights[in_decile & gain_less_5_hh].sum() / decile_people) * 100, 1)
+                round(
+                    (person_weights[in_decile & gain_less_5_hh].sum() / decile_people)
+                    * 100,
+                    1,
+                )
             )
             decile_outcomes["no_change"].append(
-                round((person_weights[in_decile & no_change_hh].sum() / decile_people) * 100, 1)
+                round(
+                    (person_weights[in_decile & no_change_hh].sum() / decile_people)
+                    * 100,
+                    1,
+                )
             )
             decile_outcomes["loss_less_than_5pct"].append(
-                round((person_weights[in_decile & loss_less_5_hh].sum() / decile_people) * 100, 1)
+                round(
+                    (person_weights[in_decile & loss_less_5_hh].sum() / decile_people)
+                    * 100,
+                    1,
+                )
             )
             decile_outcomes["loss_more_than_5pct"].append(
-                round((person_weights[in_decile & loss_more_5_hh].sum() / decile_people) * 100, 1)
+                round(
+                    (person_weights[in_decile & loss_more_5_hh].sum() / decile_people)
+                    * 100,
+                    1,
+                )
             )
         else:
             for key in decile_outcomes:
@@ -151,7 +172,9 @@ def calculate_decile_impacts(year: int = 2026) -> dict:
             "gain_less_than_5pct": round(
                 (person_weights[gain_less_5_hh].sum() / total_people) * 100, 1
             ),
-            "no_change": round((person_weights[no_change_hh].sum() / total_people) * 100, 1),
+            "no_change": round(
+                (person_weights[no_change_hh].sum() / total_people) * 100, 1
+            ),
             "loss_less_than_5pct": round(
                 (person_weights[loss_less_5_hh].sum() / total_people) * 100, 1
             ),
@@ -195,11 +218,13 @@ def main():
 
     print("\nDecile Outcomes (%):")
     print("-" * 60)
-    print(f"{'Decile':<8} {'Gain>5%':<10} {'Gain<5%':<10} {'No Change':<10} {'Loss<5%':<10} {'Loss>5%':<10}")
+    print(
+        f"{'Decile':<8} {'Gain>5%':<10} {'Gain<5%':<10} {'No Change':<10} {'Loss<5%':<10} {'Loss>5%':<10}"
+    )
     print("-" * 60)
     for i in range(10):
         print(
-            f"{i+1:<8} "
+            f"{i + 1:<8} "
             f"{results['decile_outcomes']['gain_more_than_5pct'][i]:<10.1f} "
             f"{results['decile_outcomes']['gain_less_than_5pct'][i]:<10.1f} "
             f"{results['decile_outcomes']['no_change'][i]:<10.1f} "
