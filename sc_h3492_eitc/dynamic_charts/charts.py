@@ -8,7 +8,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-from ..household import calculate_net_income_by_earnings, calculate_eitc_benefits_by_earnings
+from ..household import (
+    calculate_net_income_by_earnings,
+    calculate_eitc_benefits_by_earnings,
+)
 
 # PolicyEngine app-v2 color palette
 BLACK = "#000000"
@@ -379,15 +382,19 @@ def create_dynamic_eitc_benefit_chart(
     Returns:
         Plotly figure object
     """
-    print(f"Calculating EITC benefits for SC household with {num_children} child(ren)...")
+    print(
+        f"Calculating EITC benefits for SC household with {num_children} child(ren)..."
+    )
 
     # Get actual PolicyEngine calculations
-    employment_incomes, current_law_benefits, h3492_benefits = calculate_eitc_benefits_by_earnings(
-        state="SC",
-        num_children=num_children,
-        min_income=0,
-        max_income=max_income,
-        step=step,
+    employment_incomes, current_law_benefits, h3492_benefits = (
+        calculate_eitc_benefits_by_earnings(
+            state="SC",
+            num_children=num_children,
+            min_income=0,
+            max_income=max_income,
+            step=step,
+        )
     )
 
     fig = go.Figure()

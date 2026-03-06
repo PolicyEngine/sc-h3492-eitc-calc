@@ -77,7 +77,9 @@ def main():
 
     # Step 1: Generate net income change chart (household simulation)
     print("Step 1: Generating net income change chart...")
-    fig1 = create_dynamic_net_income_change_chart(num_children=1, max_income=200000, step=1000)
+    fig1 = create_dynamic_net_income_change_chart(
+        num_children=1, max_income=200000, step=1000
+    )
     generate_chart_html(
         fig1,
         "Net Income Change - SC H.3492 Partially Refundable EITC",
@@ -87,7 +89,9 @@ def main():
 
     # Step 1b: Generate EITC benefit comparison chart
     print("Step 1b: Generating EITC benefit comparison chart...")
-    fig1b = create_dynamic_eitc_benefit_chart(num_children=1, max_income=200000, step=1000)
+    fig1b = create_dynamic_eitc_benefit_chart(
+        num_children=1, max_income=200000, step=1000
+    )
     generate_chart_html(
         fig1b,
         "EITC Benefits Comparison - SC Current Law vs H.3492",
@@ -130,9 +134,13 @@ def main():
     print()
     print("Chart URLs after deployment:")
     print("  https://policyengine.github.io/sc-h3492-eitc-calc/net-income-change.html")
-    print("  https://policyengine.github.io/sc-h3492-eitc-calc/eitc-benefit-comparison.html")
+    print(
+        "  https://policyengine.github.io/sc-h3492-eitc-calc/eitc-benefit-comparison.html"
+    )
     print("  https://policyengine.github.io/sc-h3492-eitc-calc/winners-by-decile.html")
-    print("  https://policyengine.github.io/sc-h3492-eitc-calc/avg-benefit-by-decile.html")
+    print(
+        "  https://policyengine.github.io/sc-h3492-eitc-calc/avg-benefit-by-decile.html"
+    )
 
 
 if __name__ == "__main__":
