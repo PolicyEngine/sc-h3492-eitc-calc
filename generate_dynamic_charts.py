@@ -27,12 +27,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <title>{title}</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Serif:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-91M4529HE7"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2YHG89FY0N"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){{dataLayer.push(arguments);}}
         gtag('js', new Date());
-        gtag('config', 'G-91M4529HE7', {{ tool_name: 'sc-h3492-eitc-calc' }});
+        gtag('config', 'G-2YHG89FY0N', {{ tool_name: 'sc-h3492-eitc-calc' }});
     </script>
     <script>
     (function() {{
