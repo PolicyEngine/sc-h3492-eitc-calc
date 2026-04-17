@@ -27,6 +27,55 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <title>{title}</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Serif:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2YHG89FY0N"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){{dataLayer.push(arguments);}}
+        gtag('js', new Date());
+        gtag('config', 'G-2YHG89FY0N', {{ tool_name: 'sc-h3492-eitc-calc' }});
+    </script>
+    <script>
+    (function() {{
+      var TOOL_NAME = 'sc-h3492-eitc-calc';
+      if (typeof window === 'undefined' || !window.gtag) return;
+
+      var scrollFired = {{}};
+      window.addEventListener('scroll', function() {{
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (docHeight <= 0) return;
+        var pct = Math.floor((window.scrollY / docHeight) * 100);
+        [25, 50, 75, 100].forEach(function(m) {{
+          if (pct >= m && !scrollFired[m]) {{
+            scrollFired[m] = true;
+            window.gtag('event', 'scroll_depth', {{ percent: m, tool_name: TOOL_NAME }});
+          }}
+        }});
+      }}, {{ passive: true }});
+
+      [30, 60, 120, 300].forEach(function(sec) {{
+        setTimeout(function() {{
+          if (document.visibilityState !== 'hidden') {{
+            window.gtag('event', 'time_on_tool', {{ seconds: sec, tool_name: TOOL_NAME }});
+          }}
+        }}, sec * 1000);
+      }});
+
+      document.addEventListener('click', function(e) {{
+        var link = e.target && e.target.closest ? e.target.closest('a') : null;
+        if (!link || !link.href) return;
+        try {{
+          var url = new URL(link.href, window.location.origin);
+          if (url.hostname && url.hostname !== window.location.hostname) {{
+            window.gtag('event', 'outbound_click', {{
+              url: link.href,
+              target_hostname: url.hostname,
+              tool_name: TOOL_NAME
+            }});
+          }}
+        }} catch (err) {{}}
+      }});
+    }})();
+    </script>
     <style>
         body {{
             margin: 0;
