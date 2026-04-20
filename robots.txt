@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://policyengine.github.io/sc-h3492-eitc-calc/sitemap.xml

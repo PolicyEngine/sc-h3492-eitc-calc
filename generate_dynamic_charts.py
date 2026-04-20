@@ -18,15 +18,76 @@ from sc_h3492_eitc.dynamic_charts import (
 OUTPUT_DIR = Path("output")
 CHARTS_DIR = OUTPUT_DIR / "charts"
 
+# Base URL for GitHub Pages deployment
+BASE_URL = "https://policyengine.github.io/sc-h3492-eitc-calc"
+
+# Chart metadata for SEO (filename -> description)
+CHART_METADATA = {
+    "net-income-change.html": {
+        "description": (
+            "Interactive chart showing how South Carolina H.3492 partially "
+            "refundable EITC changes net income for a single parent with one "
+            "child across employment income levels. Powered by PolicyEngine."
+        ),
+    },
+    "eitc-benefit-comparison.html": {
+        "description": (
+            "Interactive chart comparing South Carolina EITC benefits under "
+            "current law vs H.3492 for a single parent with one child. Shows "
+            "how making 25% of excess EITC refundable increases benefits. "
+            "Powered by PolicyEngine."
+        ),
+    },
+    "winners-by-decile.html": {
+        "description": (
+            "Interactive chart showing winners and losers of SC H.3492 "
+            "partially refundable EITC by income decile. 23.3% of South "
+            "Carolina residents benefit. Powered by PolicyEngine."
+        ),
+    },
+    "avg-benefit-by-decile.html": {
+        "description": (
+            "Interactive chart showing the average dollar benefit of SC H.3492 "
+            "partially refundable EITC by income decile. Estimated cost: $403 "
+            "million in 2026. Powered by PolicyEngine."
+        ),
+    },
+}
+
 # HTML template for standalone chart files
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
+    <title>{title} | PolicyEngine</title>
+    <meta name="description" content="{meta_description}">
+    <link rel="canonical" href="{canonical_url}">
+    <meta name="theme-color" content="#319795">
+    <link rel="icon" href="https://policyengine.org/favicon.ico" type="image/x-icon">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="{title} | PolicyEngine">
+    <meta property="og:description" content="{meta_description}">
+    <meta property="og:url" content="{canonical_url}">
+    <meta property="og:image" content="{og_image}">
+    <meta property="og:site_name" content="PolicyEngine">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{title} | PolicyEngine">
+    <meta name="twitter:description" content="{meta_description}">
+    <meta name="twitter:image" content="{og_image}">
+    <meta name="twitter:site" content="@ThePolicyEngine">
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.plot.ly">
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Serif:wght@400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script defer src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-2YHG89FY0N"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -76,6 +137,34 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       }});
     }})();
     </script>
+
+    <!-- Structured data (JSON-LD) -->
+    <script type="application/ld+json">
+    {{
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "name": "{title}",
+      "description": "{meta_description}",
+      "url": "{canonical_url}",
+      "creator": {{
+        "@type": "Organization",
+        "name": "PolicyEngine",
+        "url": "https://policyengine.org"
+      }},
+      "license": "https://opensource.org/licenses/MIT",
+      "temporalCoverage": "2026",
+      "spatialCoverage": {{
+        "@type": "Place",
+        "name": "South Carolina, United States"
+      }},
+      "isPartOf": {{
+        "@type": "WebSite",
+        "name": "PolicyEngine",
+        "url": "https://policyengine.org"
+      }}
+    }}
+    </script>
+
     <style>
         body {{
             margin: 0;
@@ -86,13 +175,40 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             width: 100%;
             height: 100vh;
         }}
+        .sr-only {{
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }}
+        noscript p {{
+            padding: 2rem;
+            text-align: center;
+            font-size: 1.1rem;
+            color: #4B5563;
+        }}
     </style>
 </head>
 <body>
-    <div id="chart"></div>
+    <main>
+        <h1 class="sr-only">{title}</h1>
+        <div id="chart" role="img" aria-label="{title} - interactive chart by PolicyEngine"></div>
+        <noscript>
+            <p>This interactive chart requires JavaScript to display. Please enable
+            JavaScript in your browser to view the {title} analysis from
+            <a href="https://policyengine.org">PolicyEngine</a>.</p>
+        </noscript>
+    </main>
     <script>
-        var figure = {figure_json};
-        Plotly.newPlot('chart', figure.data, figure.layout, {{responsive: true}});
+        document.addEventListener('DOMContentLoaded', function() {{
+            var figure = {figure_json};
+            Plotly.newPlot('chart', figure.data, figure.layout, {{responsive: true}});
+        }});
     </script>
 </body>
 </html>
@@ -101,8 +217,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
 def generate_chart_html(fig, title: str, filename: str) -> None:
     """Generate standalone HTML file for a Plotly chart."""
+    meta = CHART_METADATA.get(filename, {})
+    description = meta.get("description", f"{title} - PolicyEngine analysis of South Carolina H.3492 partially refundable EITC.")
+    canonical_url = f"{BASE_URL}/{filename}"
+    og_image = f"{BASE_URL}/teal-square-transparent.png"
+
     html_content = HTML_TEMPLATE.format(
         title=title,
+        meta_description=description,
+        canonical_url=canonical_url,
+        og_image=og_image,
         figure_json=fig.to_json(),
     )
 
